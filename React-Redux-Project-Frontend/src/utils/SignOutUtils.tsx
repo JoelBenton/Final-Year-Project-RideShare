@@ -2,7 +2,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { callApi } from './api/apiManager';
 import { Alert } from 'react-native';
-import { getToken } from './auth/AuthStorage';
+import { clearSecureStore, getToken } from './auth/AuthStorage';
 
 type HomePageNavigationProp = StackNavigationProp<RootStackParamList, 'HomePage'>;
 
@@ -14,19 +14,20 @@ export const SignOutUser = async (
     navigation: HomePageNavigationProp
   ) => {
 
-    const refreshToken = await getToken('refreshToken')
+    const accessToken = await getToken('accessToken')
 
     try {
         // Call API to login
         const response = await callApi<ApiResponse>('user/logout', {
           method: 'POST',
           body: JSON.stringify({
-            refreshToken: refreshToken
+            accessToken: accessToken
           }),
         });
 
         // Navigate to another page after successful login
         navigation.navigate('LoginPage');
+        clearSecureStore();
   
         Alert.alert('Success', 'Logout Successful');
       } catch (error) {

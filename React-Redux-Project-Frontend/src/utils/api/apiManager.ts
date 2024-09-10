@@ -10,7 +10,7 @@ async function callApi<T>(endpoint: string, options: RequestInit = {}): Promise<
   const url = `${BASE_URL}${endpoint}`;
   
   // Get the token from AuthStorage (if any)
-  const token = await getToken('refreshToken');
+  const token = await getToken('accessToken');
 
   // Add Authorization header for protected routes
   const requiresAuth = !['user/signup', 'user/login'].includes(endpoint);

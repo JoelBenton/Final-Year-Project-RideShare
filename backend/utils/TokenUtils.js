@@ -1,16 +1,16 @@
 const jwt = require('jsonwebtoken');
 const db = require('../config/dbConfig'); // Your database connection module
-const mysql = require('mysql')
+const mysql = require('mysql');
 require('dotenv').config();
 
 // Function to generate an access token
 const generateAccessToken = (userId) => {
-  return jwt.sign({id: userId} , process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' });
+  return jwt.sign({ id: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' }); // Set the expiration to 15 minutes
 };
 
 // Function to generate a refresh token
 const generateRefreshToken = async (userId) => {
-  const refreshToken = jwt.sign({id: userId}, process.env.REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
+  const refreshToken = jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET);
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // Token expires in 7 days
@@ -39,6 +39,7 @@ const removeRefreshToken = async (token) => {
     console.error('Error removing refresh token:', error);
   }
 };
+
 
 const removeRefreshTokenForUser = async (user) => {
   try {

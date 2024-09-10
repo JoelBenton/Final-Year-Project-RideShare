@@ -1,23 +1,30 @@
-import { getToken } from './AuthStorage';
+import { getToken, saveToken } from './AuthStorage';
 import { callApi } from '../api/apiManager';
+
+interface ApiResponse {
+  message?: string;
+  accessToken: string;
+}
 
 export const checkTokenValidity = async (): Promise<boolean> => {
   try {
-    const refreshToken = await getToken('refreshToken');
+    const accessToken = await getToken('accessToken');
 
-    console.log(refreshToken)
-
-    if (!refreshToken) {
+    if (!accessToken) {
       return false; // No refresh token means not logged in
     }
 
     // Make an API call to check if the refresh token is still valid
-    await callApi('user/check-refresh-token', {
+    const result = await callApi<ApiResponse>('user/check-access-token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
     });
+
+    console.log(result)
+
+    saveToken('accessToken', result.accessToken)
 
     return true; // Refresh token is valid if no error was thrown
   } catch (err) {

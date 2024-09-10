@@ -8,13 +8,12 @@ router.post('/signup', userController.signup);
 router.post('/login', userController.login);
 
 // Protected routes (token required)
-router.post('/refresh', authenticateToken, userController.refresh);
 router.post('/logout', authenticateToken, userController.logout);
 
 // Endpoint to check refresh token validity
-router.post('/check-refresh-token', authenticateToken, (req, res) => {
+router.post('/check-access-token', authenticateToken, (req, res) => {
     // If we reach this point, the refresh token is valid
-    res.status(200).json({ message: 'Refresh token is valid.' });
+    res.status(200).json({ message: 'Access token is valid.', accessToken: req.user.accessToken });
   });
 
 

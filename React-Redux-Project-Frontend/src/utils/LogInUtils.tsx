@@ -9,7 +9,6 @@ type LogInPageNavigationProp = StackNavigationProp<RootStackParamList, 'LoginPag
 interface ApiResponse {
     message?: string;
     accessToken: string;
-    refreshToken: string;
     userId: string;
   }
 
@@ -32,7 +31,6 @@ export const LoginUser = async (
         Alert.alert('Success', 'Login successful!');
 
         await saveToken('accessToken', response.accessToken)
-        await saveToken('refreshToken', response.refreshToken)
         await saveToken('userId', response.userId)
 
         // Navigate to another page after successful login

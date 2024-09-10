@@ -1,39 +1,73 @@
-const db = require('../config/dbConfig'); // Import your database connection
 const jwt = require('jsonwebtoken');
+const db = require('../config/dbConfig'); // Your database connection module
+const mysql = require('mysql');
 require('dotenv').config();
+const { generateAccessToken, generateRefreshToken, removeRefreshToken } = require('../utils/TokenUtils');
 
-const authenticateToken = (req, res, next) => {
-  // Get the token from the Authorization header
+// Promisify jwt.verify
+const verifyJwt = async (token, secret) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, secret, (err, user) => {
+      if (err) reject(err);
+      else resolve(user);
+    });
+  });
+};
+
+const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Get the token part after 'Bearer'
+  const accessToken = authHeader && authHeader.split(' ')[1]; // Get the token part after 'Bearer'
 
-  if (!token) {
+  if (!accessToken) {
     return res.status(401).json({ message: 'Authorization token missing' });
   }
 
-  // Query the database to find the token and check if it is expired
-  const query = 'SELECT * FROM refresh_tokens WHERE token = ? AND expires_at > CURRENT_TIMESTAMP';
+  try {
+    const user = await verifyJwt(accessToken, process.env.ACCESS_TOKEN_SECRET); // Await the token verification
 
-  db.query(query, [token], (error, results) => {
-    if (error) {
-      console.error('Database query error:', error);
-      return res.status(500).json({ message: 'Database query error' });
+    console.log('Token not Expired.');
+    req.user = { id: user.id, accessToken }; // Attach user info to the request object
+    return next(); // Move to the next middleware
+
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      console.log('Token Expired');
+      const userId = jwt.decode(accessToken).id;
+
+      // Query the database for the active refresh token
+      const query = 'SELECT * FROM refresh_tokens WHERE user_id = ? AND expires_at > CURRENT_TIMESTAMP';
+      const formatted_sql = mysql.format(query, [userId]);
+
+      db.query(formatted_sql, async (dbErr, results) => {
+        if (dbErr) {
+          console.error('Database error:', dbErr);
+          return res.status(500).json({ message: 'Database query error' });
+        }
+
+        if (results.length === 0) {
+          return res.status(401).json({ message: 'Invalid or expired refresh token. Please sign in again.' });
+        }
+
+        const tokenData = results[0];
+        const currentRefreshToken = tokenData.token;
+
+        // Generate new tokens
+        console.log('Generating new access token');
+        const newAccessToken = generateAccessToken(userId);
+        await generateRefreshToken(userId);
+
+        // Remove the old refresh token and insert the new one
+        await removeRefreshToken(currentRefreshToken); // Remove old refresh token
+
+        // Attach the new tokens and user info to the request object
+        req.user = { id: userId, accessToken: newAccessToken }; 
+        return next();
+      });
+    } else {
+      console.error('Invalid access token:', err);
+      return res.status(403).json({ message: 'Invalid access token' });
     }
-
-    if (results.length === 0) {
-      return res.status(403).json({ message: 'Invalid or expired token' });
-    }
-
-    const tokenData = results[0];
-    
-    // Optionally: Verify token data or handle additional logic here
-    
-    // Attach user information to the request object
-    req.user = { id: tokenData.user_id };
-    
-    // Proceed to the next middleware or route handler
-    next();
-  });
+  }
 };
 
 module.exports = authenticateToken;
