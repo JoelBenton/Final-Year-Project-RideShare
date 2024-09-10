@@ -5,7 +5,7 @@ require('dotenv').config();
 
 // Function to generate an access token
 const generateAccessToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1m' }); // Set the expiration to 15 minutes
+  return jwt.sign({ id: userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15m' }); // Set the expiration to 15 minutes
 };
 
 // Function to generate a refresh token
