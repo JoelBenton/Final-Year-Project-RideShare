@@ -19,7 +19,8 @@ DB_PASSWORD
 DB_DATABASE
 DB_PORT
 PORT
-ACCESS_TOKEN_SECRET - require("crypto").randomBytes(64).toString("hex") <- Used to generate Token
+ACCESS_TOKEN_SECRET - require("crypto").randomBytes(64).toString("hex") <- Used to generate Token - To use in terminal, do node and then copy and run the command for a token.
+REFRESH_TOKEN_SECRET - ^
 ```
 
 Use 127.0.0.1 on Host for local hosted databases.

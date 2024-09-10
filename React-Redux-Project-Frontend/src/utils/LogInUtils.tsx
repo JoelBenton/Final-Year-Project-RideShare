@@ -2,8 +2,16 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { callApi } from './api/apiManager';
 import { Alert } from 'react-native';
+import { saveToken, deleteToken } from './auth/AuthStorage';
 
 type LogInPageNavigationProp = StackNavigationProp<RootStackParamList, 'LoginPage'>;
+
+interface ApiResponse {
+    message?: string;
+    accessToken: string;
+    refreshToken: string;
+    userId: string;
+  }
 
 export const LoginUser = async (
     email: string, 
@@ -13,7 +21,7 @@ export const LoginUser = async (
 
     try {
         // Call API to login
-        const response = await callApi<{ message?: string }>('user/login', {
+        const response = await callApi<ApiResponse>('user/login', {
           method: 'POST',
           body: JSON.stringify({
             email,
@@ -21,14 +29,14 @@ export const LoginUser = async (
           }),
         });
   
-        // Handle response
-        if (response.message === 'Login Successful') {
-          Alert.alert('Success', 'Login successful!');
-          // Navigate to another page after successful login
-          navigation.navigate('HomePage'); // Or any other page you want to navigate to
-        } else {
-          Alert.alert('Login Failed', response.message || 'Login failed.');
-        }
+        Alert.alert('Success', 'Login successful!');
+
+        await saveToken('accessToken', response.accessToken)
+        await saveToken('refreshToken', response.refreshToken)
+        await saveToken('userId', response.userId)
+
+        // Navigate to another page after successful login
+        navigation.navigate('HomePage'); // Or any other page you want to navigate to
       } catch (error) {
         console.error('Login error:', error);
         Alert.alert('Error', error instanceof Error ? error.message : 'Login failed.');

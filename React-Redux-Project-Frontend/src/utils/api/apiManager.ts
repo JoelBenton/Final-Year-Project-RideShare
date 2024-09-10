@@ -1,4 +1,5 @@
 import { Platform } from 'react-native';
+import { getToken } from '../auth/AuthStorage';
 
 // Base URL for the API
 const BASE_URL = Platform.OS === 'android'
@@ -7,14 +8,23 @@ const BASE_URL = Platform.OS === 'android'
 
 async function callApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
+  
+  // Get the token from AuthStorage (if any)
+  const token = await getToken('refreshToken');
+
+  // Add Authorization header for protected routes
+  const requiresAuth = !['user/signup', 'user/login'].includes(endpoint);
+
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
+    ...(requiresAuth && token ? { Authorization: `Bearer ${token}` } : {}),
+  };
 
   try {
     const response = await fetch(url, {
       ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
     });
 
     // Check if the response status is not OK (status 200-299)
