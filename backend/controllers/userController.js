@@ -64,9 +64,16 @@ exports.login = async (req, res) => {
             const hashedPassword = user.password;
             if (await bcrypt.compare(password, hashedPassword)) {
                 const userId = user.id;
+                const deviceId = req.headers['deviceid'];
+
+                console.log('DeviceID - ' + deviceId)
+
+                if (!deviceId) {
+                    return res.status(400).json({ message: "No DeviceId!"})
+                }
 
                 // Remove any existing refresh token for the user
-                await removeRefreshTokenForUser(userId);
+                await removeRefreshTokenForUser(userId, deviceId);
 
                 // Generate new access token
                 const accessToken = generateAccessToken(userId);

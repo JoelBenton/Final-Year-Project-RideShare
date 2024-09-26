@@ -38,7 +38,15 @@ Stores refresh tokens for users.
 - **Columns**:
   - `token` (VARCHAR, Primary Key): The refresh token value.
   - `user_id` (VARCHAR, Foreign Key): References the `id` in the `users` table.
+  - `user_deviceId` (VARCHAR): ID representing the users logged in device.
   - `expires_at` (DATETIME): Timestamp when the token expires.
+  - `created_at` (DATETIME): Timestamp when the token was created.
+
+    token VARCHAR(255) NOT NULL,
+    user_id VARCHAR(255) NOT NULL,
+    user_deviceId varchar(255) NOT NULL,
+    expires_at DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 ### Example
 

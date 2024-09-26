@@ -9,16 +9,16 @@ const generateAccessToken = (userId) => {
 };
 
 // Function to generate a refresh token
-const generateRefreshToken = async (userId) => {
-  const refreshToken = jwt.sign({ id: userId }, process.env.REFRESH_TOKEN_SECRET);
+const generateRefreshToken = async (userId, userDeviceId) => {
+  const refreshToken = jwt.sign({ id: userId, deviceId: userDeviceId }, process.env.REFRESH_TOKEN_SECRET);
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // Token expires in 7 days
 
   try {
     // Insert the refresh token into the database
-    const sql = 'INSERT INTO refresh_tokens (token, user_id, expires_at) VALUES (?, ?, ?)';
-    const formatted_sql = mysql.format(sql, [refreshToken, userId, expiresAt]);
+    const sql = 'INSERT INTO refresh_tokens (token, user_id, user_deviceId, expires_at) VALUES (?, ?, ?, ?)';
+    const formatted_sql = mysql.format(sql, [refreshToken, userId, userDeviceId ,expiresAt]);
 
     await db.query(formatted_sql);
   } catch (error) {

@@ -41,9 +41,7 @@ This document provides an overview of the API endpoints available in the project
 ### Logout
 
 - **Endpoint**: `POST /api/logout`
-- **Description**: Logs out a user by invalidating the refresh token.
-- **Request Body**:
-  - `refreshToken` (string, required): Refresh token to be invalidated.
+- **Description**: Logs out a user by invalidating the refresh token. Required UserId to complete action.
 - **Response**:
   - **Success (200 OK)**:
     - Message: `Logged out successfully`
@@ -75,7 +73,7 @@ This document provides an overview of the API endpoints available in the project
   - Attaches the user information and current refresh token to the request object.
 
 ## Error Handling
-
+- **400 Validation Error**: Indicates a variables validation has failed. Eg. No DeviceId or UserID.
 - **401 Unauthorized**: Indicates missing or invalid authentication credentials.
 - **403 Forbidden**: Indicates expired or invalid tokens.
 - **500 Internal Server Error**: Indicates a server-side error.

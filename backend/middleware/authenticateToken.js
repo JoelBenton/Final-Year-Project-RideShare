@@ -16,10 +16,15 @@ const verifyJwt = async (token, secret) => {
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
+  const deviceId = req.headers['deviceid'];
   const accessToken = authHeader && authHeader.split(' ')[1]; // Get the token part after 'Bearer'
 
   if (!accessToken) {
     return res.status(401).json({ message: 'Authorization token missing' });
+  }
+
+  if (!deviceId) {
+    return res.status(401).json({ message: 'Device ID missing.'})
   }
 
   try {
@@ -32,7 +37,8 @@ const authenticateToken = async (req, res, next) => {
   } catch (err) {
     if (err.name === 'TokenExpiredError') {
       console.log('Token Expired');
-      const userId = jwt.decode(accessToken).id;
+      const decodedToken = jwt.decode(accessToken)
+      const userId = decodedToken.id;
 
       // Query the database for the active refresh token
       const query = 'SELECT * FROM refresh_tokens WHERE user_id = ? AND expires_at > CURRENT_TIMESTAMP';
@@ -51,10 +57,14 @@ const authenticateToken = async (req, res, next) => {
         const tokenData = results[0];
         const currentRefreshToken = tokenData.token;
 
+        if (tokenData.user_deviceId != deviceId) {
+          return res.status(401).json({ message: 'Invalid Device ID. Please sign in again.' })
+        }
+
         // Generate new tokens
         console.log('Generating new access token');
         const newAccessToken = generateAccessToken(userId);
-        await generateRefreshToken(userId);
+        await generateRefreshToken(userId, deviceId);
 
         // Remove the old refresh token and insert the new one
         await removeRefreshToken(currentRefreshToken); // Remove old refresh token

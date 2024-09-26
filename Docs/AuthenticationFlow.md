@@ -33,9 +33,12 @@ Authentication is handled by issuing **JWT (JSON Web Tokens)** that represent th
      - The **user ID** is extracted from the expired token.
      - The **refresh token** is fetched from the database.
      - If the refresh token is still valid:
-       - A new access token and refresh token are generated.
-       - The old refresh token is removed from the database, and the new one is stored.
-       - The new access token is attached to the response for the client to use.
+       - If the Device Id is identical to stored one:
+         - A new access token and refresh token are generated.
+         - The old refresh token is removed from the database, and the new one is stored.
+         - The new access token is attached to the response for the client to use.
+       - Else:
+         - Return Error saying Device does not match login. Please Login.
 
 ## 3. **Logout**
 1. The client sends the access token and optionally the refresh token.
