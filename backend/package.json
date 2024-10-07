@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon server.js",
     "gen-db": "npx prisma generate",
-    "migrate-db": "npx prisma migrate dev --name init"
+    "migrate-db": "npx prisma migrate dev --name"
   },
   "keywords": [],
   "author": "",
