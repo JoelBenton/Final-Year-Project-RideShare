@@ -8,7 +8,7 @@ This document provides an overview of the API endpoints available in the project
 
 ### Sign Up
 
-- **Endpoint**: `POST /api/signup`
+- **Endpoint**: `POST /user/signup`
 - **Description**: Registers a new user.
 - **Request Body**:
   - `email` (string, required): User's email address.
@@ -23,7 +23,7 @@ This document provides an overview of the API endpoints available in the project
 
 ### Login
 
-- **Endpoint**: `POST /api/login`
+- **Endpoint**: `POST /user/login`
 - **Description**: Authenticates a user and issues tokens.
 - **Request Body**:
   - `email` (string, required): User's email address.
@@ -40,7 +40,7 @@ This document provides an overview of the API endpoints available in the project
 
 ### Logout
 
-- **Endpoint**: `POST /api/logout`
+- **Endpoint**: `POST /user/logout`
 - **Description**: Logs out a user by invalidating the refresh token. Required UserId to complete action.
 - **Response**:
   - **Success (200 OK)**:
@@ -48,19 +48,19 @@ This document provides an overview of the API endpoints available in the project
   - **Error (500 Internal Server Error)**:
     - Message: `Error logging out`
 
-## Token Management
-
-### Refresh Token
-
-- **Endpoint**: `POST /api/refresh`
-- **Description**: Refreshes access token using the refresh token.
-- **Request Body**:
-  - `refreshToken` (string, required): Refresh token to obtain a new access token.
-- **Response**:
-  - **Success (200 OK)**:
-    - `accessToken` (string): New JWT access token.
-  - **Error (403 Forbidden)**:
-    - Message: `Invalid refresh token`
+### Check Token Validity
+  - **Endpoint**: `POST /user/check-access-token`
+  - **Description**: Runs the authenticateToken middleware to confirm if the user has a valid access token / Refresh token.
+  - **Response**:
+    - **Success (200 OK)**:
+    - **400 Validation Error**: 
+      - Indicates a variables validation has failed. Eg. No DeviceId or UserID. / Bad Request.
+    - **401 Unauthorized**: 
+      - Indicates missing or invalid authentication credentials.
+    - **403 Forbidden**: 
+      - Indicates expired or invalid tokens.
+    - **500 Internal Server Error**: 
+      - Indicates a server-side error.
 
 ## Middleware
 
@@ -73,7 +73,7 @@ This document provides an overview of the API endpoints available in the project
   - Attaches the user information and current refresh token to the request object.
 
 ## Error Handling
-- **400 Validation Error**: Indicates a variables validation has failed. Eg. No DeviceId or UserID.
+- **400 Validation Error**: Indicates a variables validation has failed. Eg. No DeviceId or UserID. / Bad Request.
 - **401 Unauthorized**: Indicates missing or invalid authentication credentials.
 - **403 Forbidden**: Indicates expired or invalid tokens.
 - **500 Internal Server Error**: Indicates a server-side error.

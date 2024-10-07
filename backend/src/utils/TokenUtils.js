@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-const db = require('../config/dbConfig'); // Your database connection module
-const mysql = require('mysql');
+const {createRefreshToken, deleteRefreshToken, findRefreshTokenByUserId } = require('./../models/refreshTokenModel'); // Adjust the path as necessary
 require('dotenv').config();
 
 // Function to generate an access token
@@ -16,11 +15,8 @@ const generateRefreshToken = async (userId, userDeviceId) => {
   expiresAt.setDate(expiresAt.getDate() + 7); // Token expires in 7 days
 
   try {
-    // Insert the refresh token into the database
-    const sql = 'INSERT INTO refresh_tokens (token, user_id, user_deviceId, expires_at) VALUES (?, ?, ?, ?)';
-    const formatted_sql = mysql.format(sql, [refreshToken, userId, userDeviceId ,expiresAt]);
-
-    await db.query(formatted_sql);
+    // Use the model to create or update the refresh token
+    await createRefreshToken(refreshToken, userId, userDeviceId, expiresAt);
   } catch (error) {
     console.log('Error storing refresh token:', error);
     throw new Error('Error storing refresh token');
@@ -29,26 +25,24 @@ const generateRefreshToken = async (userId, userDeviceId) => {
   return refreshToken;
 };
 
+// Function to remove a specific refresh token
 const removeRefreshToken = async (token) => {
   try {
-    const sql = 'DELETE FROM refresh_tokens WHERE token = ?';
-    const formatted_sql = mysql.format(sql, [token]);
-
-    await db.query(formatted_sql);
+    await deleteRefreshToken(token);
   } catch (error) {
     console.error('Error removing refresh token:', error);
   }
 };
 
-
-const removeRefreshTokenForUser = async (user) => {
+// Function to remove all refresh tokens for a user
+const removeRefreshTokenForUser = async (userId) => {
   try {
-    const sql = 'DELETE FROM refresh_tokens WHERE user_id = ?';
-    const formatted_sql = mysql.format(sql, [user]);
-
-    await db.query(formatted_sql);
+    const userTokens = await findRefreshTokenByUserId(userId);
+    if (userTokens) {
+      await deleteRefreshToken(userTokens.token); // Assuming you want to delete by token here
+    }
   } catch (error) {
-    console.error('Error removing users refresh token:', error);
+    console.error('Error removing user\'s refresh token:', error);
   }
 };
 
