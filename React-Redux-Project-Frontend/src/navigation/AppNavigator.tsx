@@ -11,10 +11,6 @@ export type RootStackParamList = {
   HomePage: undefined;
 };
 
-export type LoginPageNavigationProp = StackNavigationProp<RootStackParamList, 'LoginPage'>;
-export type SignUpPageNavigationProp = StackNavigationProp<RootStackParamList, 'SignUpPage'>;
-export type HomePageNavigationProp = StackNavigationProp<RootStackParamList, 'HomePage'>;
-
 const Stack = createStackNavigator<RootStackParamList>();
 
 interface AppNavigatorProps {

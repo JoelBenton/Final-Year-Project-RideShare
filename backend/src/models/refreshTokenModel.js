@@ -43,11 +43,9 @@ const findValidRefreshTokenByUserId = async (userId) => {
 
         return await prisma.refreshToken.findUnique({
             where: {
-                userId_expiresAt: {
-                    userId,
-                    expiresAt: {
-                        gte: currentDate, // Ensure expiresAt is greater than or equal to the current date
-                    },
+                userId,
+                expiresAt: {
+                    gte: currentDate, // Ensure expiresAt is greater than or equal to the current date
                 },
             },
         });
