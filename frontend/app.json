@@ -5,12 +5,25 @@
       "bundler": "metro"
     },
     "plugins": [
-      "expo-router"
+      "expo-router",
+      ["expo-build-properties", {
+        "ios": {
+          "useFrameworks": "static"
+        }
+      }],
+      "@react-native-firebase/app",
+      "@react-native-firebase/auth"
     ],
     "name": "frontend",
     "slug": "frontend",
     "android": {
-      "package": "com.anonymous.frontend"
+      "package": "com.anonymous.frontend",
+      "googleServicesFile": "./google-services.json"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.frontend",
+      "googleServicesFile": "./GoogleService-Info.plist"
     }
   }
 }

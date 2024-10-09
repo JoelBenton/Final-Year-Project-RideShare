@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getToken } from '../../../src/utils/auth/AuthStorage';
-import { SignOutUser } from '../../../src/utils/SignOutUtils';
 import { useRouter } from 'expo-router';
+import auth from '@react-native-firebase/auth'
 
 const HomePage: React.FC = () => {
 
@@ -25,7 +25,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   const HandleSignOutPress = () => {
-    SignOutUser(router);
+    auth().signOut();
   }
 
   return (

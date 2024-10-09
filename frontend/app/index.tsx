@@ -1,61 +1,134 @@
-import React, { useState, useEffect } from 'react';
-import { checkTokenValidity } from '../src/utils/auth/Auth';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState, AppDispatch } from '../src/redux/Store';
+import { updateForm } from '../src/redux/actions/userFormActions';
+import { useFocusEffect } from '@react-navigation/native';
+import CustomCard from '../src/components/textInput';
+import CustomButton from '../src/components/defaultButton';
+import { defaultStyles } from '../src/constants/themes';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import auth from '@react-native-firebase/auth';
+import { FirebaseError } from 'firebase/app';
 
-export default function App() {
-    const router = useRouter();
+const LoginPage: React.FC = () => {
 
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true); 
+    const router = useRouter()
 
-    useEffect(() => {
-        const verifyTokens = async () => {
-            try {
-                setLoading(true);
-                const valid = await checkTokenValidity();
-                setIsLoggedIn(valid);
-            } catch (error) {
-                console.error('Error verifying tokens:', error);
-                setIsLoggedIn(false);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const dispatch = useDispatch<AppDispatch>();
+    const formData = useSelector((state: RootState) => state.form);
 
-        verifyTokens();
-    }, []);
+    const [password, setPassword] = useState('');
+    const [email, setEmail] = useState(formData.email || '');
+    const [loading, setLoading] = useState(false);
 
-    // New useEffect to handle navigation based on login state
-    useEffect(() => {
-        if (!loading) {
-            if (isLoggedIn) {
-                router.replace('(tabs)/home');
-            } else {
-                router.replace('/login');
-            }
+    useFocusEffect(
+        React.useCallback(() => {
+        setEmail(formData.email);
+        setPassword('');
+        }, [formData.email])
+    );
+
+    const handleEmailChange = (newEmail: string) => {
+        setEmail(newEmail);
+        dispatch(updateForm({ email: newEmail }));
+    };
+
+    const handleNewUserPress = () => {
+        router.replace('/signup')
+    };
+
+    // Handle user login
+    const handleLoginPress = async () => {
+        setLoading(true)
+
+        if (!email || !password) {
+            Alert.alert('Error', 'Please fill out both email and password fields.');
+            setLoading(false)
+            return;
         }
-    }, [isLoggedIn, loading, router]);
+        
+        try {
+            await auth().signInWithEmailAndPassword(email, password)
+        } catch (e: any) {
+            const err = e as FirebaseError;
 
-    if (loading) {
-        return (
-            <View style={[styles.container, styles.horizontal]}>
-                <ActivityIndicator size="large" color="#6A0DAD" />
-            </View>
-        );
-    }
+            if (err.message.includes('auth/invalid-credential')) {
+                alert('Invalid Credentials')
+            } else {
+                alert('Sign in failed: ' + err.message);
+            }
+            
+        } finally {
+            setLoading(false)
+        }
+    };
 
-    return null; // Optionally return null or some fallback UI, as navigation will happen
-};
+    return (
+        <SafeAreaView style={styles.container}>
+        <Text style={styles.title}>Log in</Text>
+        <View style={styles.form}>
+            <CustomCard
+            title="Work Email"
+            primaryValue={email}
+            onPrimaryChange={handleEmailChange}
+            primaryPlaceholder="Enter work email"
+            />
+            <CustomCard
+            title="Password"
+            primaryValue={password}
+            onPrimaryChange={setPassword}
+            primaryPlaceholder="Enter password"
+            secureTextEntry={true}
+            showSecureTextEntryToggle={true}
+            />
+            <TouchableOpacity onPress={() => auth().sendPasswordResetEmail(email)} style={styles.newUserContainer}>
+                <Text style={styles.newUserText}>Reset Password</Text>
+            </TouchableOpacity>
+        </View>
+        <View style={styles.bottomView}>
+            <CustomButton title="Log in" onPress={handleLoginPress} />
+            <TouchableOpacity onPress={handleNewUserPress} style={styles.newUserContainer}>
+            <Text style={styles.newUserText}>New User? Sign up</Text>
+            </TouchableOpacity>
+        </View>
+        </SafeAreaView>
+    );
+    };
 
-const styles = StyleSheet.create({
+    const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
+        padding: 20,
+        justifyContent: 'flex-start',
     },
-    horizontal: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        padding: 10,
+    title: {
+        color: defaultStyles.primaryColor,
+        fontSize: 40,
+        marginBottom: '10%',
+        fontFamily: defaultStyles.fontFamily,
+        fontWeight: '800',
+        textAlign: 'center',
     },
-});
+    form: {
+        flex: 1,
+        width: '100%',
+    },
+    bottomView: {
+        marginTop: 20,
+        width: '100%',
+    },
+    newUserContainer: {
+        marginTop: 10,
+        alignSelf: 'center',
+    },
+    newUserText: {
+        color: '#00A3FF',
+        fontSize: 13,
+        fontWeight: 'bold',
+        textDecorationLine: 'underline',
+    },
+    });
+
+    export default LoginPage;

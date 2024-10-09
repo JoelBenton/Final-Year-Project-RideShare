@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState, AppDispatch } from '../../src/redux/Store';
-import { updateForm } from '../../src/redux/actions/userFormActions';
-import CustomCard from '../../src/components/textInput';
-import CustomButton from '../../src/components/defaultButton';
-import { defaultStyles } from '../../src/constants/themes';
+import { RootState, AppDispatch } from '../src/redux/Store';
+import { updateForm } from '../src/redux/actions/userFormActions';
+import CustomCard from '../src/components/textInput';
+import CustomButton from '../src/components/defaultButton';
+import { defaultStyles } from '../src/constants/themes';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { signUpUser } from '../../src/utils/SignUpUtils';
-import { PasswordValidator, EmailValidator } from '../../src/utils/inputChecks/validators';
+import { PasswordValidator, EmailValidator } from '../src/utils/inputChecks/validators';
 import { useRouter } from 'expo-router';
+import auth from '@react-native-firebase/auth';
+import { FirebaseError } from '@firebase/app';
 
 const SignUpPage: React.FC = () => {
 
@@ -21,6 +22,7 @@ const SignUpPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState(formData.email || '');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [loading, setLoading] = useState(false);
 
     // State for error messages
     const [emailError, setEmailError] = useState('');
@@ -40,6 +42,7 @@ const SignUpPage: React.FC = () => {
 
     const handleSignUpPress = async () => {
         let valid = true;
+        setLoading(true)
     
         // Clear previous error messages
         setEmailError('');
@@ -71,10 +74,19 @@ const SignUpPage: React.FC = () => {
         valid = false;
         }
     
-        if (!valid) return;
-    
-        // If validation passes, send data to the backend
-        await signUpUser(email, password, router);
+        if (!valid) {
+            setLoading(false)
+            return
+        };
+
+        try {
+            await auth().createUserWithEmailAndPassword(email, password)
+        } catch (e: any) {
+            const err = e as FirebaseError;
+            alert('Registration failed: ' + err.message);
+        } finally {
+            setLoading(false)
+        }
     };
 
     return (
@@ -112,7 +124,7 @@ const SignUpPage: React.FC = () => {
             </View>
             <View style={styles.bottomView}>
             <CustomButton title='Create Account' onPress={handleSignUpPress} />
-            <TouchableOpacity onPress={() => router.replace('/login')} style={styles.existingUserContainer}>
+            <TouchableOpacity onPress={() => router.replace('/')} style={styles.existingUserContainer}>
                 <Text style={styles.existingUserText}>Already have an account? Log in</Text>
             </TouchableOpacity>
             </View>

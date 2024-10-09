@@ -1,6 +1,4 @@
 import { Platform } from 'react-native';
-import { getToken } from '../auth/AuthStorage';
-import getDeviceId from '../auth/DeviceId';
 
 // Base URL for the API
 const BASE_URL = Platform.OS === 'android'
@@ -9,20 +7,10 @@ const BASE_URL = Platform.OS === 'android'
 
 async function callApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const url = `${BASE_URL}${endpoint}`;
-  
-  // Get the token from AuthStorage (if any)
-  const token = await getToken('accessToken');
-
-  // Get the device ID from Function Call (Will only change on OS level change or New Device.)
-  const deviceId = await getDeviceId();
-
-  // Add Authorization header for protected routes
-  const requiresAuth = !['user/signup', 'user/login'].includes(endpoint);
 
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
-    ...(requiresAuth && token ? { Authorization: `Bearer ${token}`, DeviceID: `DeviceID ${deviceId}` } : { DeviceID: deviceId }),
   };
 
   try {
