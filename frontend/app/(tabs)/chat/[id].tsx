@@ -21,16 +21,16 @@ const ChatPage = () => {
     const msgCollectionRef = collection(FIRESTORE_DB, `groups/${id}/messages`)
     const q = query(msgCollectionRef, orderBy('sentAt', 'asc'))
     
-    const unsubscribe = onSnapshot(q, (groups: DocumentData) => {
+    // `onSnapshot` sets up a real-time listener on the Firestore query and updates the `messages` state whenever new data is available.
+    const subscribe = onSnapshot(q, (groups: DocumentData) => {
       const groupMessages = groups.docs.map((doc) => {
         return { id: doc.id, ...doc.data()}
       });
-      console.log('Current messages: ', groupMessages);
       
       setMessages(groupMessages)
     });
     
-    return unsubscribe
+    return subscribe
   }, []);
   
   const sendMessage = async () => {

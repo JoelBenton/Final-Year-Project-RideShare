@@ -18,16 +18,16 @@ const chat = () => {
     const ref = collection(FIRESTORE_DB, 'groups');
     setGroupsCollectionRef(ref)
 
-    const unsubscribe = onSnapshot(ref, (groups: DocumentData) => {
+    // `onSnapshot` sets up a real-time listener on the Firestore reference
+    const subscribe = onSnapshot(ref, (groups: DocumentData) => {
       const groupsData = groups.docs.map((doc) => {
         return { id: doc.id, ...doc.data()}
       });
-      console.log('Current groups in database: ', groupsData);
 
       setGroups(groupsData)
     });
 
-    return unsubscribe
+    return subscribe
   }, [])
 
   const startGroup = async () => {
