@@ -11,8 +11,8 @@ interface CustomButtonProps {
 
 const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, buttonStyle, textStyle }) => {
   return (
-    <TouchableOpacity style={[styles.button, buttonStyle]} onPress={onPress}>
-      <Text style={[styles.buttonText, textStyle]}>{title}</Text>
+    <TouchableOpacity style={[buttonStyle, styles.button]} onPress={onPress}>
+      <Text style={[textStyle, styles.buttonText]}>{title}</Text>
     </TouchableOpacity>
   );
 };

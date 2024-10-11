@@ -1,61 +1,40 @@
-import { Stack, useRouter, useSegments } from "expo-router"
 import store from '../src/redux/Store';
 import { Provider } from "react-redux";
-import { useEffect, useState } from "react";
-import auth, { FirebaseAuthTypes } from "@react-native-firebase/auth";
-import { ActivityIndicator, View } from "react-native";
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { AuthContext, AuthProvider } from '../context/AuthContext';
+import { useContext, useEffect } from 'react';
+import { ActivityIndicator, Text } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-export default function StackLayout() {
-    const router = useRouter();
-    const segments = useSegments();
+const InitialLayout = () => {
+  const { user, initialized } = useContext(AuthContext);
+  const router = useRouter();
+  const segments = useSegments();
 
-    const [initialising, setInitialising] = useState(true);
-    const [user, setUser] = useState<FirebaseAuthTypes.User | null>();
+  useEffect(() => {
+    if (!initialized) return;
 
-    const onAuthStateChanged = (user: FirebaseAuthTypes.User | null) => {
-        console.log('onAuthStateChanges', user);
-        setUser(user);
-        if (initialising) setInitialising(false);
+    const inTabsGroup = segments[0] === '(tabs)';
+
+    if (user && !inTabsGroup) {
+      router.replace('/home');
+    } else if (!user) {
+      router.replace('/(auth)/login');
     }
+  }, [user, initialized]);
 
-    useEffect(() => {
-        const subscriber = auth().onAuthStateChanged(onAuthStateChanged);
-        return subscriber
-    }, []);
+  return <>{initialized ? <Slot /> : <ActivityIndicator size='large' />}</>;
+};
 
-    useEffect(() => {
-        if (initialising) return;
+const RootLayout = () => {
+  return (
+    <Provider store={store}>
+        <AuthProvider>
+            <InitialLayout />
+        </AuthProvider>
+    </Provider>
+    
+  );
+};
 
-        const inTabsGroup = segments[0] === '(tabs)';
-
-        if (user && !inTabsGroup) {
-            router.replace('/(tabs)/home')
-        } else if (!user && inTabsGroup) {
-            router.replace('/');
-        }
-
-    }, [user, initialising])
-
-    if (initialising) {
-        return (
-            <View 
-                style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flex: 1,
-                }}>
-                    <ActivityIndicator size='large' />
-            </View>
-        )
-    }
-
-    return (
-        <Provider store={store}>
-            <Stack>
-                <Stack.Screen name="(tabs)"  options={{headerShown: false }}/>
-                <Stack.Screen name="index"  options={{headerShown: false }}/>
-                <Stack.Screen name="signup"  options={{headerShown: false }}/>
-            </Stack>
-        </Provider>
-    )
-}
+export default RootLayout;

@@ -1,42 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { getToken } from '../../../src/utils/auth/AuthStorage';
-import { useRouter } from 'expo-router';
-import auth from '@react-native-firebase/auth'
+import { getToken } from '../../src/utils/auth/AuthStorage';
+import { FIREBASE_AUTH } from '../../config/FirebaseConfig';
+import { signOut } from 'firebase/auth';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomePage: React.FC = () => {
 
-  const router = useRouter()
-
-  const [accessToken, setAccessToken] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchTokens = async () => {
-      try {
-        setAccessToken(await getToken('accessToken'));
-        setUserInfo(await getToken('userId'));
-      } catch (error) {
-        console.error('Failed to fetch tokens:', error);
-      }
-    };
-
-    fetchTokens();
-  }, []);
-
   const HandleSignOutPress = () => {
-    auth().signOut();
+    signOut(FIREBASE_AUTH);
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.welcomeText}>Welcome. You have logged in successfully.</Text>
-      <Text style={styles.tokenText}>Access Token: {accessToken}</Text>
-      <Text style={styles.tokenText}>User Info: {userInfo}</Text>
+      <Text style={styles.tokenText}>User Info: {FIREBASE_AUTH.currentUser.uid}</Text>
       <TouchableOpacity onPress={HandleSignOutPress}>
           <Text style={styles.newUserText}>Sign Out?</Text>
         </TouchableOpacity>
-    </View>
+    </SafeAreaView>
   );
 };
 
