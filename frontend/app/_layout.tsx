@@ -3,8 +3,7 @@ import { Provider } from "react-redux";
 import { Slot, useRouter, useSegments } from 'expo-router';
 import { AuthContext, AuthProvider } from '../context/AuthContext';
 import { useContext, useEffect } from 'react';
-import { ActivityIndicator, Text } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ActivityIndicator } from 'react-native';
 
 const InitialLayout = () => {
   const { user, initialized } = useContext(AuthContext);

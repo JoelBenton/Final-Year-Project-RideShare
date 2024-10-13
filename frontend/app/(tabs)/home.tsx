@@ -1,23 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { getToken } from '../../src/utils/auth/AuthStorage';
 import { FIREBASE_AUTH } from '../../config/FirebaseConfig';
-import { signOut } from 'firebase/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomePage: React.FC = () => {
-
-  const HandleSignOutPress = () => {
-    signOut(FIREBASE_AUTH);
-  }
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.welcomeText}>Welcome. You have logged in successfully.</Text>
       <Text style={styles.tokenText}>User Info: {FIREBASE_AUTH.currentUser.uid}</Text>
-      <TouchableOpacity onPress={HandleSignOutPress}>
-          <Text style={styles.newUserText}>Sign Out?</Text>
-        </TouchableOpacity>
     </SafeAreaView>
   );
 };

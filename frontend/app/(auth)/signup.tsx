@@ -10,9 +10,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { PasswordValidator, EmailValidator } from '../../src/utils/inputChecks/validators';
 import { useRouter } from 'expo-router';
 import { FirebaseError } from '@firebase/app';
-import { createUserWithEmailAndPassword, UserCredential } from 'firebase/auth';
-import { setDoc, doc } from 'firebase/firestore'
-import { FIREBASE_AUTH, FIRESTORE_DB } from '../../config/FirebaseConfig';
+import { createUserWithEmailAndPassword, updateProfile, UserCredential } from 'firebase/auth';
+import { FIREBASE_AUTH } from '../../config/FirebaseConfig';
 
 const SignUpPage: React.FC = () => {
     
@@ -46,10 +45,10 @@ const SignUpPage: React.FC = () => {
 
     const setUserInformation = async (user: UserCredential) => {
         try {
-            const docRef = await setDoc(doc(FIRESTORE_DB, `users/${user.user.uid}`), {
-                username,
-                email: user.user.email
+            await updateProfile(user.user, {
+                displayName: username
             })
+            
         } catch (error) {
             console.error('There was an error creating user information:', error)
         }

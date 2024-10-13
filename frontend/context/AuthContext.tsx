@@ -19,7 +19,6 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   useEffect(() => {
     onAuthStateChanged(FIREBASE_AUTH, (user) => {
-      console.log('AUTHENTICATED: ', user && user.email);
       setUser(user);
       setInitialized(true);
     });

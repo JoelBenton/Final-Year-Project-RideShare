@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, StyleProp, TextStyle, ViewStyle } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, StyleProp, TextStyle, ViewStyle, ActivityIndicator } from 'react-native';
 import { defaultStyles } from '../constants/themes';
+import { useFonts } from 'expo-font'
 
 interface CustomButtonProps {
   title: string;
@@ -10,9 +11,22 @@ interface CustomButtonProps {
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, buttonStyle, textStyle }) => {
+
+  const [fontsLoaded, fontError] = useFonts({
+    'InknutAntiqua_600SemiBold': require('./../assets/Fonts/InknutAntiqua-SemiBold.ttf')
+  })
+
+  if (fontError) {
+    console.error(fontError)
+  }
+
+  if (!fontsLoaded) {
+    return <ActivityIndicator />
+  }
+ 
   return (
-    <TouchableOpacity style={[buttonStyle, styles.button]} onPress={onPress}>
-      <Text style={[textStyle, styles.buttonText]}>{title}</Text>
+    <TouchableOpacity style={[styles.button, buttonStyle]} onPress={onPress}>
+      <Text style={[styles.buttonText, textStyle]}>{title}</Text>
     </TouchableOpacity>
   );
 };
@@ -24,7 +38,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
-    width: '100%',  // Make button full width
+    width: '100%',
   },
   buttonText: {
     color: defaultStyles.secondaryColor,
