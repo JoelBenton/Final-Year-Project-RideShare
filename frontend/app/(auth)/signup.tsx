@@ -35,7 +35,7 @@ const SignUpPage: React.FC = () => {
     // Effect to handle component mount or email change
     useEffect(() => {
         setEmail(formData.email); // Update the email based on Redux state
-    }, [formData.email]);
+    }, [formData.email]); // Runs effect whenever formData.email changes
     
     const handleEmailChange = (newEmail: string) => {
         setEmail(newEmail);

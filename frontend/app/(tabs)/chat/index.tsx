@@ -28,7 +28,7 @@ const chat = () => {
     });
 
     return subscribe
-  }, [])
+  }, []) // Will only run once
 
   const startGroup = async () => {
     try {

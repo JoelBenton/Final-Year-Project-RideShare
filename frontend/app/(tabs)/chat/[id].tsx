@@ -45,6 +45,7 @@ const ChatPage = () => {
     await addDoc(msgCollectionRef, {
       message: msg,
       sender: user.uid,
+      senderName: user.displayName,
       sentAt: serverTimestamp(), // As name suggests, uses the servers time not the local users. Allows for unity of timezone around server.
     });
 
@@ -58,7 +59,7 @@ const ChatPage = () => {
     return (
       <View style={[styles.messageContainer, myMessage ? styles.currentUserMessageContainer : styles.otherUserMessageContainer]}>
           <Text style={styles.messageText}>{item.message}</Text>
-          <Text style={styles.messageDate}>{item.sentAt?.toDate().toLocaleDateString()}</Text>
+          <Text style={myMessage ? styles.currentUserMessageDate : styles.otherUserMessageDate}>{item.senderName} - {item.sentAt?.toDate().toLocaleDateString()}</Text>
       </View>
     )
   }
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
     marginHorizontal: 20, 
     borderRadius: 10,
-    maxWidth: '80%'
+    maxWidth: '80%',
   },
   currentUserMessageContainer: {
     backgroundColor: '#dcf8c6',
@@ -130,12 +131,19 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 16,
-    fontFamily: defaultStyles.fontFamily
+    fontFamily: defaultStyles.fontFamily,
+    alignSelf: 'flex-end'
   },
-  messageDate: {
+  currentUserMessageDate: {
     fontSize: 9,
     color: 'gray',
     fontFamily: defaultStyles.fontFamily,
     alignSelf: 'flex-end'
+  },
+  otherUserMessageDate: {
+    fontSize: 9,
+    color: 'gray',
+    fontFamily: defaultStyles.fontFamily,
+    alignSelf: 'flex-start'
   }
 })

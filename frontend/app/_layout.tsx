@@ -20,7 +20,7 @@ const InitialLayout = () => {
     } else if (!user) {
       router.replace('/(auth)/login');
     }
-  }, [user, initialized]);
+  }, [user, initialized]); // Runs when either user or initialised is changed
 
   return <>{initialized ? <Slot /> : <ActivityIndicator size='large' />}</>;
 };
@@ -28,7 +28,7 @@ const InitialLayout = () => {
 const RootLayout = () => {
   return (
     <Provider store={store}>
-        <AuthProvider>
+      <AuthProvider>
             <InitialLayout />
         </AuthProvider>
     </Provider>

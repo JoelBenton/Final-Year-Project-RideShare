@@ -39,6 +39,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    height: 40
   },
   buttonText: {
     color: defaultStyles.secondaryColor,
